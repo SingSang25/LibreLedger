@@ -1,7 +1,7 @@
-#include <User.h>
-#include <Role.h>
-#include <Groupe.h>
-#include <Address.h>
+#include "model/User.h"
+#include "model/Role.h"
+#include "model/Groupe.h"
+#include "model/Address.h"
 
 User::User(std::string username, std::string password, std::string role)
     : username(username), password(password), role(role) {}

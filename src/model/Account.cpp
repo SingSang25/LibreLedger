@@ -1,5 +1,5 @@
-#include "Account.h"
-#include "Currency.h"
+#include "model/Account.h"
+#include "model/Currency.h"
 
 Account::Account(int id, const std::string &name, const std::string &type, double balance, const Currency &currency)
     : id(id), name(name), type(type), balance(balance), currency(currency) {}

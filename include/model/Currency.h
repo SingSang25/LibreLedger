@@ -3,7 +3,6 @@
 #define CURRENCY_H
 
 #include <string>
-#include <Transaction.h>
 #include <list>
 
 class Currency

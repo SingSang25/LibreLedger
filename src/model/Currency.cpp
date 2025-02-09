@@ -1,4 +1,4 @@
-#include <Currency.h>
+#include "model/Currency.h"
 
 Currency::Currency(std::string name, std::string symbol, std::string code, std::string country, int decimal)
     : name(name), symbol(symbol), code(code), country(country), decimal(decimal) {}

@@ -3,7 +3,7 @@
 #define ACCOUNT_H
 
 #include <string>
-#include <Currency.h>
+#include "model/Currency.h"
 
 class Account
 {

@@ -1,7 +1,7 @@
-#include <Transaction.h>
-#include <Currency.h>
-#include <Account.h>
-#include <User.h>
+#include "model/Transaction.h"
+#include "model/Currency.h"
+#include "model/Account.h"
+#include "model/User.h"
 
 Transaction::Transaction(int id, const std::string &description, double amount, const Currency &currency, const Account &debitAccount, const Account &creditAccount, const std::string &date, const std::string &category, const User &createdBy)
     : id(id), description(description), amount(amount), currency(currency), debitAccount(debitAccount), creditAccount(creditAccount), date(date), category(category), createdBy(createdBy) {}
