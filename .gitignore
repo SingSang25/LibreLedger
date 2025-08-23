@@ -1,22 +1,77 @@
+# virtualenvs (schon enthalten)
 .venv/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
 venv/
+env/
 ENV/
-*.sqlite3
-*.log
-.ipynb_checkpoints/
-.mypy_cache/
-.dmypy.json
-.pyre/
-.poetry
+
+# Bytecode
+__pycache__/
+*.py[cod]
+.Python
+
+# Test / Coverage
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
-dist/
+.tox/
+
+# MyPy / Pyre / Ruff
+.mypy_cache/
+.pyre/
+.dmypy.json
+.ruff_cache/
+
+# Jupyter / Debug
+.ipynb_checkpoints/
+*.log
+
+# Build / Packaging
 build/
+dist/
 *.egg-info/
+.eggs/
+*.whl
+
+# Local config
+.env
+.env.*
+*.sqlite3
+*.db
+
+# Poetry intern
+.poetry/
+
+# VSCode config (optional)
+.vscode/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+.DS_Store
+dist
+dist-ssr
+coverage
+*.local
+
+/cypress/videos/
+/cypress/screenshots/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+*.tsbuildinfo
