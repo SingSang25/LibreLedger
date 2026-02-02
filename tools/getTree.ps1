@@ -1,32 +1,85 @@
-param (
-    [string]$Path = ".",
-    [int]$Depth = 4,
-    [string[]]$IgnoreFolders = @(".venv", "node_modules", "__pycache__", ".git")
+param(
+    [Parameter(Mandatory = $true, HelpMessage = "Folder to visualize as a tree")]
+    [ValidateNotNullOrEmpty()]
+    [string]$Path,
+
+    # If set, directory names won't be printed (only files are shown as leaves)
+    [switch]$FilesOnly,
+
+    # Optional depth limit (default: unlimited)
+    [int]$MaxDepth = [int]::MaxValue,
+
+    # If set, include hidden items (otherwise they are ignored)
+    [switch]$IncludeHidden
 )
 
-function Get-Tree($folder, $prefix = "", $level = 1, $maxDepth = 10, $ignore = @()) {
-    if ($level -gt $maxDepth) {
+function Show-Tree {
+    param(
+        [string]$CurrentPath,
+        [string]$Prefix = "",
+        [int]$Depth = 0
+    )
+
+    if ($Depth -ge $MaxDepth) { return }
+
+    try {
+        # Build common parameters and only pass -Force when IncludeHidden is set
+        $commonParams = @{
+            LiteralPath = $CurrentPath
+            ErrorAction = 'Stop'
+            Force       = $IncludeHidden
+        }
+
+        # Separate directories and files to list folders first
+        $dirs = Get-ChildItem @commonParams -Directory | Sort-Object Name
+        $files = Get-ChildItem @commonParams -File      | Sort-Object Name
+
+        # We iterate dirs first, then files
+        $items = @()
+        $items += $dirs
+        $items += $files
+    }
+    catch {
+        Write-Warning "$Prefix└── <access denied>: $CurrentPath"
         return
     }
 
-    $items = Get-ChildItem -Path $folder -Force | Where-Object {
-        $_.PSIsContainer -and ($ignore -notcontains $_.Name) -or -not $_.PSIsContainer
-    } | Sort-Object { if ($_.PSIsContainer) { "0$($_.Name)" } else { "1$($_.Name)" } }
-
-    $count = $items.Count
-    for ($i = 0; $i -lt $count; $i++) {
+    for ($i = 0; $i -lt $items.Count; $i++) {
         $item = $items[$i]
-        $isLast = ($i -eq $count - 1)
-        $connector = if ($isLast) { "└── " } else { "├── " }
-        Write-Output "$prefix$connector$item.Name"
 
-        if ($item.PSIsContainer -and ($ignore -notcontains $item.Name)) {
-            $newPrefix = if ($isLast) { "$prefix    " } else { "$prefix│   " }
-            Get-Tree -folder $item.FullName -prefix $newPrefix -level ($level + 1) -maxDepth $maxDepth -ignore $ignore
+        # Always ignore "__pycache__" directories
+        if ($item.PSIsContainer -and ($item.Name -ieq '__pycache__')) { continue }
+        if ($item.PSIsContainer -and ($item.Name -ieq '.pytest_cache')) { continue }
+        if ($item.PSIsContainer -and ($item.Name -ieq '.sonarlint')) { continue }
+        if ($item.PSIsContainer -and ($item.Name -ieq '.vscode')) { continue }
+        if ($item.PSIsContainer -and ($item.Name -ieq '.venv')) { continue }
+
+        $isLast = ($i -eq $items.Count - 1)
+        $joint = if ($isLast) { "└── " } else { "├── " }
+        $pad = if ($isLast) { "    " } else { "│   " }
+
+        if ($item.PSIsContainer) {
+            if (-not $FilesOnly) {
+                Write-Host ($Prefix + $joint + $item.Name)
+            }
+            # Recurse into subdirectory
+            Show-Tree -CurrentPath $item.FullName -Prefix ($Prefix + $pad) -Depth ($Depth + 1)
+        }
+        else {
+            Write-Host ($Prefix + $joint + $item.Name)
         }
     }
 }
 
-# Start
-Write-Output "`n📁 Projektstruktur mit Dateien (max. Tiefe: $Depth, ohne: $IgnoreFolders):"
-Get-Tree -folder (Resolve-Path $Path) -maxDepth $Depth -ignore $IgnoreFolders
+# Normalize and print root
+try {
+    $root = (Resolve-Path -LiteralPath $Path -ErrorAction Stop).Path
+}
+catch {
+    throw "Path not found: $Path"
+}
+
+if (-not $FilesOnly) {
+    Write-Host $root
+}
+Show-Tree -CurrentPath $root
