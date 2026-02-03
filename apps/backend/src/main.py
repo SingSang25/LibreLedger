@@ -9,6 +9,7 @@ from src.models import (
     transaction,
 )
 from src.database.database import engine
+from src.router import router
 
 app = FastAPI()
 
@@ -19,7 +20,4 @@ ledger_account_budget.LedgerAccountBudget.metadata.create_all(bind=engine)
 transaction.Transaction.metadata.create_all(bind=engine)
 entry.Entry.metadata.create_all(bind=engine)
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello Bigger Applications!"}
+app.include_router(router.router, prefix="/api/v1")

@@ -25,7 +25,6 @@ class LedgerAccountBudget(Base):
         index=True,
     )
 
-    # User enters EITHER monthly OR yearly (validate in service layer)
     budget_monthly: Mapped[Decimal | None] = mapped_column(
         Numeric(14, 2), nullable=True
     )
@@ -38,7 +37,6 @@ class LedgerAccountBudget(Base):
         UniqueConstraint(
             "ledger_account_id", "fiscal_year_id", name="uq_budget_account_year"
         ),
-        # Optional but helpful composite index for lookups
         Index("ix_budget_account_year", "ledger_account_id", "fiscal_year_id"),
     )
 
