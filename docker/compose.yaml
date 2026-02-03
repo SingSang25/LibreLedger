@@ -1,17 +1,15 @@
 services:
-  mariadb:
-    image: mariadb:lts-ubi9
-    container_name: libreledger_mariadb
+  database:
+    image: postgres:18.1
+    container_name: libreledger_db
     restart: unless-stopped
     env_file:
       - ../.env
-    environment:
-      MARIADB_USER: ${DB_USER}
-      MARIADB_PASSWORD: ${DB_PASSWORD}
-      MARIADB_DATABASE: ${DB_NAME}
-      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "${DB_PORT}:3306"
+      - "5432:5432"
     volumes:
-      - ./docker/mariadb/init:/docker-entrypoint-initdb.d
- 
+      - postgres_data:/var/lib/postgresql
+
+
+volumes:
+  postgres_data:
