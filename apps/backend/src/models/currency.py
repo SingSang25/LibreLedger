@@ -14,8 +14,6 @@ class Currency(Base):
     __tablename__ = "currencies"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-
-    # ISO 4217 code, e.g. "CHF", "EUR", "USD"
     code: Mapped[str] = mapped_column(
         String(3), nullable=False, unique=True, index=True
     )
@@ -23,8 +21,6 @@ class Currency(Base):
     # TODO: Multilingual support
     name: Mapped[str | None] = mapped_column(String(64), nullable=True)
     symbol: Mapped[str | None] = mapped_column(String(8), nullable=True)
-
-    # Most currencies use 2, but some use 0 or 3
     minor_units: Mapped[int] = mapped_column(Integer, nullable=False, default=2)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 

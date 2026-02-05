@@ -18,6 +18,7 @@ from src.database.dependencies import generate_uuid
 if TYPE_CHECKING:
     from src.models.fiscal_year import FiscalYear
     from src.models.entry import Entry
+    from src.models.currency import Currency
 
 
 class Transaction(Base):
@@ -31,35 +32,23 @@ class Transaction(Base):
     )
 
     booking_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
-
-    # Optional "Beleg" reference
     receipt_no: Mapped[str | None] = mapped_column(
         String(64), nullable=True, index=True
     )
-
-    # Human readable description
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
-
-    # Helpful for bank statement imports (merchant / payee)
     payee: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
-
-    # For CSV import deduplication (hash or provider id)
     import_id: Mapped[str | None] = mapped_column(
         String(128), nullable=True, unique=True, index=True
     )
-
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.utcnow
+        DateTime, nullable=False, default=datetime
     )
-
     fiscal_year_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("fiscal_years.uuid", ondelete="RESTRICT"),
         nullable=False,
         index=True,
     )
-
-    # If null -> use fiscal year's base currency
     currency_id: Mapped[int | None] = mapped_column(
         Integer,
         ForeignKey("currencies.id", ondelete="RESTRICT"),
