@@ -9,6 +9,7 @@ from src.database.dependencies import generate_uuid
 
 if TYPE_CHECKING:
     from src.models.currency import Currency
+    from src.models.ledger_account_budget import LedgerAccountBudget
 
 
 class FiscalYear(Base):
@@ -28,11 +29,20 @@ class FiscalYear(Base):
         index=True,
     )
 
-    base_currency: Mapped["Currency"] = relationship(back_populates="fiscal_years")
+    base_currency: Mapped["Currency"] = relationship(
+        "Currency",
+        back_populates="fiscal_years",
+    )
 
-    __repr__ = (
-        lambda self: f"<FiscalYear uuid={self.uuid} name={self.name} base_currency={self.base_currency_id} start_date={self.start_date} end_date={self.end_date} >"
+    budgets: Mapped[list["LedgerAccountBudget"]] = relationship(
+        "LedgerAccountBudget",
+        back_populates="fiscal_year",
+        cascade="all, delete-orphan",
     )
-    __str__ = (
-        lambda self: f"FiscalYear {self.name} ({self.start_date} to {self.end_date}) in {self.base_currency_id}"
-    )
+
+    def __repr__(self) -> str:
+        return (
+            f"<FiscalYear uuid={self.uuid} name={self.name} "
+            f"base_currency={self.base_currency_id} start_date={self.start_date} "
+            f"end_date={self.end_date}>"
+        )

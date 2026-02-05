@@ -32,9 +32,15 @@ class LedgerAccountBudget(Base):
         Numeric(14, 2), nullable=True
     )
     budget_yearly: Mapped[Decimal | None] = mapped_column(Numeric(14, 2), nullable=True)
+    ledger_account: Mapped["LedgerAccount"] = relationship(
+        "LedgerAccount",
+        back_populates="budgets",
+    )
 
-    ledger_account: Mapped["LedgerAccount"] = relationship(back_populates="budgets")
-    fiscal_year: Mapped["FiscalYear"] = relationship()
+    fiscal_year: Mapped["FiscalYear"] = relationship(
+        "FiscalYear",
+        back_populates="budgets",
+    )
 
     __table_args__ = (
         UniqueConstraint(

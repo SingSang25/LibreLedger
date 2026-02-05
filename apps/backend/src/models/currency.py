@@ -25,10 +25,12 @@ class Currency(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
     fiscal_years: Mapped[list["FiscalYear"]] = relationship(
-        back_populates="base_currency"
+        "FiscalYear",
+        back_populates="base_currency",
     )
     ledger_accounts: Mapped[list["LedgerAccount"]] = relationship(
-        back_populates="currency"
+        "LedgerAccount",
+        back_populates="currency",
     )
 
     def __repr__(self) -> str:

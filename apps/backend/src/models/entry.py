@@ -41,8 +41,15 @@ class Entry(Base):
 
     memo: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    transaction: Mapped["Transaction"] = relationship(back_populates="entries")
-    ledger_account: Mapped["LedgerAccount"] = relationship()
+    transaction: Mapped["Transaction"] = relationship(
+        "Transaction",
+        back_populates="entries",
+    )
+
+    ledger_account: Mapped["LedgerAccount"] = relationship(
+        "LedgerAccount",
+        back_populates="entries",
+    )
 
     def __repr__(self) -> str:
         return (

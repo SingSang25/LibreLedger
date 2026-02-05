@@ -56,10 +56,11 @@ class Transaction(Base):
         index=True,
     )
 
-    fiscal_year: Mapped["FiscalYear"] = relationship()
-    currency: Mapped["Currency | None"] = relationship()
+    fiscal_year: Mapped["FiscalYear"] = relationship("FiscalYear")
+    currency: Mapped["Currency | None"] = relationship("Currency")
 
     entries: Mapped[list["Entry"]] = relationship(
+        "Entry",
         back_populates="transaction",
         cascade="all, delete-orphan",
     )
