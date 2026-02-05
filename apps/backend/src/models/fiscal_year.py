@@ -1,12 +1,14 @@
-from __future__ import annotations
-
 from datetime import date
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, String, Integer, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database.database import Base
 from src.database.dependencies import generate_uuid
+
+if TYPE_CHECKING:
+    from src.models.currency import Currency
 
 
 class FiscalYear(Base):

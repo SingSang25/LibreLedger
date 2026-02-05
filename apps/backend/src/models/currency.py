@@ -1,9 +1,13 @@
-from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from sqlalchemy import String, Integer, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database.database import Base
+
+if TYPE_CHECKING:
+    from src.models.fiscal_year import FiscalYear
+    from src.models.ledger_account import LedgerAccount
 
 
 class Currency(Base):

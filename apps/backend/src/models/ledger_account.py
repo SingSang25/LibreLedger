@@ -1,13 +1,15 @@
-from __future__ import annotations
-
 from datetime import date
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Date, Enum as SAEnum, ForeignKey, String, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database.database import Base
 from src.database.dependencies import generate_uuid
+
+if TYPE_CHECKING:
+    from src.models.ledger_account_budget import LedgerAccountBudget
 
 
 class LedgerAccountType(str, Enum):

@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 from datetime import date, datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     Date,
@@ -15,6 +14,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database.database import Base
 from src.database.dependencies import generate_uuid
+
+if TYPE_CHECKING:
+    from src.models.fiscal_year import FiscalYear
+    from src.models.entry import Entry
 
 
 class Transaction(Base):

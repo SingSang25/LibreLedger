@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     ForeignKey,
@@ -12,6 +11,10 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database.database import Base
+
+if TYPE_CHECKING:
+    from src.models.transaction import Transaction
+    from src.models.ledger_account import LedgerAccount
 
 
 class Entry(Base):

@@ -1,11 +1,14 @@
-from __future__ import annotations
-
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, Numeric, UniqueConstraint, Integer, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database.database import Base
+
+if TYPE_CHECKING:
+    from src.models.ledger_account import LedgerAccount
+    from src.models.fiscal_year import FiscalYear
 
 
 class LedgerAccountBudget(Base):
