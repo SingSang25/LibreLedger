@@ -53,20 +53,19 @@ def generate_random_string(length: int = 10) -> str:
 
 
 def get_random_currency_id(db: Session) -> int:
-    return db.query(Currency).first().id
+    currency = db.query(Currency).first()
+    if currency is None:
+        raise RuntimeError("No Currency found in DB. Seed Currency first.")
+    return currency.id
 
 
 @pytest.fixture()
-def get_fiscal_year_uuid_for_test() -> str:
-    db = TestingSessionLocal()
-    data = db.query(FiscalYear).first().uuid
-    db.close()
+def get_fiscal_year_uuid_for_test(db_session: Session) -> str:
+    data = db_session.query(FiscalYear).first().uuid
     return str(data)
 
 
 # --- Pytest fixtures ---
-
-
 @pytest.fixture(scope="session")
 def setup_database():
     """
@@ -79,7 +78,6 @@ def setup_database():
 
     alembic_cfg = Config("alembic.ini")
     alembic_cfg.set_main_option("sqlalchemy.url", SQLALCHEMY_TEST_DATABASE_URL)
-
     command.upgrade(alembic_cfg, "head")
 
     yield
@@ -87,36 +85,45 @@ def setup_database():
     with engine.begin() as conn:
         conn.execute(text("DROP SCHEMA IF EXISTS public CASCADE;"))
         conn.execute(text("CREATE SCHEMA public;"))
-
     engine.dispose()
 
 
+# --- Per-test transactional session (isolation) ---
 @pytest.fixture(scope="function", autouse=True)
-def generate_random_fiscal_year(setup_database):
-    """
-    Insert one FiscalYear for the whole test session.
-    Ensures migrations ran before seeding.
-    """
-    db = TestingSessionLocal()
+def db_session(setup_database):
+    connection = engine.connect()
+    transaction = connection.begin()
+
+    session = TestingSessionLocal()
+
     try:
-        for i in range(10):
-            random_date = generate_random_date()
-            payload = FiscalYear(
-                name=f"{generate_random_string(10)}_{i}",
-                description=f"{generate_random_string(20)}_{i}",
-                start_date=random_date,
-                end_date=random_date + timedelta(days=365),
-                base_currency_id=get_random_currency_id(db),
-            )
-
-            db.add(payload)
-            db.commit()
+        yield session
     finally:
-        db.close()
+        session.close()
+        transaction.rollback()  # <-- this makes every test isolated
+        connection.close()
 
 
+# --- Seed data per test (will be rolled back automatically) ---
+@pytest.fixture(scope="function", autouse=True)
+def seed_fiscal_year(db_session: Session):
+    for i in range(10):
+        random_date = generate_random_date()
+        payload = FiscalYear(
+            name=f"{generate_random_string(10)}_{i}",
+            description=f"{generate_random_string(20)}_{i}",
+            start_date=random_date,
+            end_date=random_date + timedelta(days=365),
+            base_currency_id=get_random_currency_id(db_session),
+        )
+        db_session.add(payload)
+
+    db_session.commit()
+
+
+# --- FastAPI client using the per-test session ---
 @pytest.fixture()
-def client():
+def client(db_session: Session):
     app.dependency_overrides[get_db] = override_get_db
     with TestClient(app, raise_server_exceptions=False) as c:
         yield c
