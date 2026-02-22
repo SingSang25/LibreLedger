@@ -40,7 +40,7 @@ def test_get_fiscal_year_returns_200(client):
 
 
 def test_get_fiscal_year_returns_500(client, monkeypatch):
-    def raise_error(db):
+    def raise_error():
         raise RuntimeError("Boom")
 
     monkeypatch.setattr(

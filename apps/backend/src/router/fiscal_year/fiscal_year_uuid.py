@@ -23,7 +23,7 @@ async def get_fiscal_year(
     return get_fiscal_year_by_uuid(str(fiscal_year_uuid), db)
 
 
-@router.put("", response_model=FiscalYearUpdate)
+@router.put("", response_model=FiscalYear)
 async def update_fiscal_year(
     fiscal_year_uuid: UUID,
     fiscal_year_data: FiscalYearUpdate,

@@ -59,11 +59,11 @@ def update_fiscal_year(
 ):
     fiscal_year = get_fiscal_year_by_uuid(fiscal_year_uuid, db)
 
-    for field, value in fiscal_year_data.model_dump(exclude_unset=True).items():
+    for field, value in fiscal_year_data.model_dump().items():
         setattr(fiscal_year, field, value)
 
     try:
-        db.flush(fiscal_year)
+        db.flush()
         db.commit()
         db.refresh(fiscal_year)
         return fiscal_year

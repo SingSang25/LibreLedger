@@ -41,11 +41,11 @@ class FiscalYearCreate(FiscalYearBase):
 
 
 class FiscalYearUpdate(FiscalYearBase):
-    name: str | None = None
-    description: str | None = None
-    start_date: date | None = None
-    end_date: date | None = None
-    base_currency_id: int | None = None
+    name: str = Field(..., max_length=64)
+    description: str | None = Field(None, max_length=256)
+    start_date: date
+    end_date: date
+    base_currency_id: int
 
     @field_validator("end_date")
     @classmethod

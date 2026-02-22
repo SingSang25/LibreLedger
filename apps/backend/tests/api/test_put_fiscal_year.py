@@ -24,17 +24,18 @@ from datetime import date
         },
     ],
 )
-def test_post_fiscal_year_returns_200(client, payload):
-    response = client.post(
-        "/api/v1/fiscal_year",
-        json=payload,
+def test_put_fiscal_year_returns_200(client, get_fiscal_year_uuid_for_test, payload):
+    response = client.put(
+        f"/api/v1/fiscal_year/{get_fiscal_year_uuid_for_test}", json=payload
     )
     assert response.status_code == 200
 
     data = response.json()
-    assert isinstance(data, dict)
 
     # Assertions validating response_model
+    assert isinstance(data, dict)
+
+    # Required keys (exclude=True fields are not asserted)
     assert "uuid" in data
     assert "name" in data
     assert "description" in data
@@ -42,15 +43,34 @@ def test_post_fiscal_year_returns_200(client, payload):
     assert "end_date" in data
     assert "base_currency_code" in data
 
+    # Basic types
     assert isinstance(data["uuid"], str)
     assert isinstance(data["name"], str)
     assert (data["description"] is None) or isinstance(data["description"], str)
     assert isinstance(data["base_currency_code"], str)
 
-    assert isinstance(data["start_date"], str)
-    assert isinstance(data["end_date"], str)
+    # ISO date parseability
     date.fromisoformat(data["start_date"])
     date.fromisoformat(data["end_date"])
+
+
+def test_put_fiscal_year_returns_404(client):
+    payload = {
+        "name": "Y" * 64,
+        "description": "D" * 256,
+        "start_date": "2026-01-01",
+        "end_date": "2026-12-31",
+        "base_currency_id": 1,
+    }
+    response = client.put(
+        "/api/v1/fiscal_year/ffffffff-ffff-ffff-ffff-ffffffffffff", json=payload
+    )
+    assert response.status_code == 404
+
+    data = response.json()
+
+    # Assertions validating response_model
+    assert isinstance(data, dict)
 
 
 @pytest.mark.parametrize(
@@ -118,37 +138,39 @@ def test_post_fiscal_year_returns_200(client, payload):
         },
     ],
 )
-def test_post_fiscal_year_returns_422(client, payload):
-    response = client.post(
-        "/api/v1/fiscal_year",
-        json=payload,
+def test_put_fiscal_year_returns_422(client, get_fiscal_year_uuid_for_test, payload):
+    response = client.put(
+        f"/api/v1/fiscal_year/{get_fiscal_year_uuid_for_test}", json=payload
     )
     assert response.status_code == 422
 
     data = response.json()
+
+    # Assertions validating response_model
     assert isinstance(data, dict)
-    assert "detail" in data
 
 
-def test_post_fiscal_year_returns_500(client, monkeypatch):
+def test_put_fiscal_year_returns_500(
+    client, get_fiscal_year_uuid_for_test, monkeypatch
+):
 
     def raise_error():
         raise RuntimeError("Boom")
 
     monkeypatch.setattr(
-        "src.router.fiscal_year.router.create_fiscal_year_service",
+        "src.router.fiscal_year.fiscal_year_uuid.update_fiscal_year_service",
         raise_error,
     )
 
-    response = client.post(
-        "/api/v1/fiscal_year",
-        json={
-            "name": "N" * 64,
-            "description": "D" * 256,
-            "start_date": "2026-01-01",
-            "end_date": "2026-12-31",
-            "base_currency_id": 1,
-        },
+    payload = {
+        "name": "Y" * 64,
+        "description": "D" * 256,
+        "start_date": "2026-01-01",
+        "end_date": "2026-12-31",
+        "base_currency_id": 1,
+    }
+    response = client.put(
+        f"/api/v1/fiscal_year/{get_fiscal_year_uuid_for_test}", json=payload
     )
     assert response.status_code == 500
     assert "Internal Server Error" in response.text
