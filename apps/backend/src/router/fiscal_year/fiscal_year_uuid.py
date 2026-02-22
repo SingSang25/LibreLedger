@@ -1,4 +1,4 @@
-import uuid
+from uuid import UUID
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -17,24 +17,24 @@ router = APIRouter()
 
 @router.get("", response_model=FiscalYear)
 async def get_fiscal_year(
-    fiscal_year_uuid: uuid.UUID,
+    fiscal_year_uuid: UUID,
     db: Session = Depends(get_db),
 ):
-    return get_fiscal_year_by_uuid(fiscal_year_uuid, db)
+    return get_fiscal_year_by_uuid(str(fiscal_year_uuid), db)
 
 
 @router.put("", response_model=FiscalYearUpdate)
 async def update_fiscal_year(
-    fiscal_year_uuid: uuid.UUID,
+    fiscal_year_uuid: UUID,
     fiscal_year_data: FiscalYearUpdate,
     db: Session = Depends(get_db),
 ):
-    return update_fiscal_year_service(fiscal_year_uuid, fiscal_year_data, db)
+    return update_fiscal_year_service(str(fiscal_year_uuid), fiscal_year_data, db)
 
 
 @router.delete("", response_model=DeleteResponse)
 async def delete_fiscal_year(
-    fiscal_year_uuid: uuid.UUID,
+    fiscal_year_uuid: UUID,
     db: Session = Depends(get_db),
 ):
-    return delete_fiscal_year_service(fiscal_year_uuid, db)
+    return delete_fiscal_year_service(str(fiscal_year_uuid), db)
