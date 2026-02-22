@@ -25,8 +25,8 @@ class FiscalYear(FiscalYearBase):
 
 
 class FiscalYearCreate(FiscalYearBase):
-    name: str
-    description: str | None = None
+    name: str = Field(..., max_length=64)
+    description: str | None = Field(None, max_length=256)
     start_date: date
     end_date: date
     base_currency_id: int

@@ -71,6 +71,7 @@ Input:
 - API-Endpunkt:
 - HTTP-Methode:
 - Kurze Feature-Beschreibung:
+- Body:
 - response_model:
 
 Output:

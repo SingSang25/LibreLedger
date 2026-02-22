@@ -19,7 +19,7 @@ async def get_fiscal_years(
     return get_fiscal_years_service(db)
 
 
-@router.post("", response_model=FiscalYearCreate)
+@router.post("", response_model=FiscalYear)
 async def create_fiscal_year(
     fiscal_year_data: FiscalYearCreate,
     db: Session = Depends(get_db),

@@ -7,9 +7,9 @@ from alembic import command
 from alembic.config import Config
 from dotenv import load_dotenv
 from datetime import date, timedelta
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import Session, sessionmaker
 
 from src.main import app
 from src.database.dependencies import get_db
@@ -52,19 +52,14 @@ def generate_random_string(length: int = 10) -> str:
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
-def get_random_currency_id(db) -> int:
-    data: Currency = db.query(Currency).first()
-    if not data:
-        raise ValueError(
-            "No currencies found in the database. Ensure migrations/seed create at least one currency."
-        )
-    return data.id
+def get_random_currency_id(db: Session) -> int:
+    return db.query(Currency).first().id
 
 
 # --- Pytest fixtures ---
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def setup_database():
     """
     Reset schema, run Alembic migrations once for the whole test session.
@@ -96,18 +91,18 @@ def generate_random_fiscal_year(setup_database):
     """
     db = TestingSessionLocal()
     try:
-        random_date = generate_random_date()
+        for i in range(10):
+            random_date = generate_random_date()
+            payload = FiscalYear(
+                name=f"{generate_random_string(10)}_{i}",
+                description=f"{generate_random_string(20)}_{i}",
+                start_date=random_date,
+                end_date=random_date + timedelta(days=365),
+                base_currency_id=get_random_currency_id(db),
+            )
 
-        payload = FiscalYear(
-            name=generate_random_string(10),
-            description=generate_random_string(20),
-            start_date=random_date,
-            end_date=random_date + timedelta(days=365),
-            base_currency_id=get_random_currency_id(db),
-        )
-
-        db.add(payload)
-        db.commit()
+            db.add(payload)
+            db.commit()
     finally:
         db.close()
 
