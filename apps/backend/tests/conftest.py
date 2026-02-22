@@ -56,7 +56,7 @@ def get_random_currency_id(db: Session) -> int:
     return db.query(Currency).first().id
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def get_fiscal_year_uuid_for_test() -> str:
     db = TestingSessionLocal()
     data = db.query(FiscalYear).first().uuid
@@ -83,6 +83,7 @@ def setup_database():
     command.upgrade(alembic_cfg, "head")
 
     yield
+
     with engine.begin() as conn:
         conn.execute(text("DROP SCHEMA IF EXISTS public CASCADE;"))
         conn.execute(text("CREATE SCHEMA public;"))
@@ -90,7 +91,7 @@ def setup_database():
     engine.dispose()
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="function", autouse=True)
 def generate_random_fiscal_year(setup_database):
     """
     Insert one FiscalYear for the whole test session.
